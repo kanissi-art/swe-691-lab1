@@ -1,56 +1,37 @@
-def calculate_grade(scores):
-    def score_to_grade(score):
-        if score < 0 or score > 100:
-            return "Invalid"
-        elif score >= 80:
-            return "A"
-        elif score >= 70:
-            return "B"
-        elif score >= 60:
-            return "C"
-        elif score >= 50:
-            return "D"
-        else:
-            return "F"
+def calculate_grade(scores): 
 
-    # กรองเฉพาะตัวเลข
-    valid_scores = [s for s in scores if isinstance(s, (int, float))]
+    total = 0 
 
-    if not valid_scores:
-        print("ไม่มีคะแนนที่เป็นตัวเลขเลย")
-        return None
+    for score in scores: 
 
-    # ตรวจสอบว่ามีคะแนนผิดพลาดหรือไม่
-    invalid_scores = [s for s in valid_scores if s < 0 or s > 100]
-    if invalid_scores:
-        print(f"พบคะแนนผิดพลาด: {invalid_scores}")
-        return None
+        total = total + score 
 
-    total = sum(valid_scores)
-    average = total / len(valid_scores)
+    average = total / len(scores) 
 
-    if average >= 80:
-        overall_grade = "A"
-    elif average >= 70:
-        overall_grade = "B"
-    elif average >= 60:
-        overall_grade = "C"
-    elif average >= 50:
-        overall_grade = "D"
-    else:
-        overall_grade = "F"
+    if average >= 80: 
 
-    detailed_grades = [(score, score_to_grade(score)) for score in valid_scores]
+        grade = "A" 
 
-    print(f"จำนวนจุดทั้งหมด: {len(valid_scores)}")
-    print("รายละเอียดแต่ละจุด:")
-    for score, grade in detailed_grades:
-        print(f"- {score} → {grade}")
-    print(f"\nค่าเฉลี่ย: {average:.2f}")
-    print(f"เกรดรวม: {overall_grade}")
-    return overall_grade, average, detailed_grades
+    elif average >= 70: 
 
+        grade = "B" 
 
-# ตัวอย่างการทดสอบ
-scores = [85, "abc", 92, None, 70, "95", 60]
-calculate_grade(scores)
+    elif average >= 60: 
+
+        grade = "C" 
+
+    elif average >= 50: 
+
+        grade = "D" 
+
+    else: 
+
+        grade = "F" 
+
+    return grade, average 
+
+ 
+
+scores = [85, 92, 78, 88, 95] 
+
+print(calculate_grade(scores))
