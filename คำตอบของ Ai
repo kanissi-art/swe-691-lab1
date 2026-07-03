@@ -1,33 +1,65 @@
-ถาม AI ว่าโค้ดนี้มี bug ไหม คำตอบของ Ai
+จำนวน bug: 2 จุด
+ไม่มีการตรวจสอบชนิดข้อมูล → ถ้า scores มีค่าที่ไม่ใช่ตัวเลข เช่น "abc" หรือ None จะทำให้เกิด TypeError ตอนบวกหรือหาร
 
-จากลิสต์คะแนนที่คุณให้มา [85, 92, 78, 88, 95]
+ไม่มีการตรวจสอบช่วงคะแนน → ถ้าคะแนนติดลบ หรือเกิน 100 จะยังถูกนำไปคำนวณและตีเกรดตามเงื่อนไข ซึ่งไม่สมเหตุสมผล
 
-จำนวนจุดทั้งหมด: มี 5 จุด
+📋 รายละเอียด bug แต่ละจุด
+Bug ที่ 1: for score in scores: total = total + score → ถ้า score ไม่ใช่ตัวเลข จะ crash ทันที
 
-รายละเอียดแต่ละจุดพร้อมเกรด:
+Bug ที่ 2: if average >= 80: → ใช้ได้เฉพาะกรณีคะแนนอยู่ในช่วง 0–100 แต่ถ้าเจอ -5 หรือ 120 ก็ยังตีเกรดผิดพลาด
 
-85 → A
+def calculate_grade(scores):
+    def score_to_grade(score):
+        if not isinstance(score, (int, float)):
+            return "Invalid"
+        if score < 0 or score > 100:
+            return "Invalid"
+        elif score >= 80:
+            return "A"
+        elif score >= 70:
+            return "B"
+        elif score >= 60:
+            return "C"
+        elif score >= 50:
+            return "D"
+        else:
+            return "F"
 
-92 → A
+    # กรองเฉพาะตัวเลขที่อยู่ในช่วง 0–100
+    valid_scores = [s for s in scores if isinstance(s, (int, float)) and 0 <= s <= 100]
 
-78 → B
+    if not valid_scores:
+        print("ไม่มีคะแนนที่ถูกต้องเลย")
+        return None
 
-88 → A
+    total = sum(valid_scores)
+    average = total / len(valid_scores)
 
-95 → A
+    overall_grade = score_to_grade(average)
 
-และค่าเฉลี่ยรวมคือ 87.6 → เกรดรวม A
+    detailed_grades = [(score, score_to_grade(score)) for score in scores]
 
-ถ้าเกิดคะแนนมีการติดลบ กับ คะแนนเกิน 100 ละ จะมี bug:
-เพิ่มขึ้นไหม ถ้าในลิสต์คะแนนมี ค่าติดลบ หรือ เกิน 100 จริง ๆ แล้วโค้ดที่เราเขียนจะยังทำงานได้ตามปกติครับ แต่ผลลัพธ์จะไม่สมเหตุสมผล เพราะระบบเกรดที่เรากำหนดไว้ (A–F) ออกแบบมาสำหรับคะแนนในช่วง 0–100 เท่านั้น
+    print(f"จำนวนจุดทั้งหมด: {len(scores)}")
+    print("รายละเอียดแต่ละจุด:")
+    for score, grade in detailed_grades:
+        print(f"- {score} → {grade}")
+    print(f"\nค่าเฉลี่ย: {average:.2f}")
+    print(f"เกรดรวม: {overall_grade}")
+    return overall_grade, average, detailed_grades
 
-ปัญหาที่จะเกิดขึ้น คะแนนติดลบ: จะถูกตีความว่าเป็น "F" โดยอัตโนมัติ แม้ว่าในความจริงไม่ควรมีคะแนนติดลบ
 
-คะแนนเกิน 100: จะถูกตีความว่าเป็น "A" เพราะเงื่อนไขคือ >= 80 แต่จริง ๆ แล้วคะแนนเกิน 100 ก็ควรถือว่าเป็นข้อมูลผิดพลาด
+# ตัวอย่างทดสอบ
+scores = [85, "abc", -5, 92, 110, 70]
+calculate_grade(scores)
 
-วิธีแก้ไข เราควรเพิ่มการตรวจสอบ (validation) ก่อนคำนวณ เช่น ถ้าคะแนนอยู่นอกช่วง 0–100 ให้แจ้งเตือนหรือโยน error ออกมา
+จำนวนจุดทั้งหมด: 6
+รายละเอียดแต่ละจุด:
+- 85 → A
+- abc → Invalid
+- -5 → Invalid
+- 92 → A
+- 110 → Invalid
+- 70 → B
 
-ถ้า scores ไม่ใช่ตัวเลขละ:
-ถ้า scores มีข้อมูลที่ ไม่ใช่ตัวเลข เช่นเป็น string "abc" หรือเป็น object อื่น ๆ โค้ดเดิมจะเจอ bug แน่นอนครับ เพราะ sum() หรือการบวกตัวเลขกับ string จะทำให้เกิด TypeError
-
-วิธีแก้ไข เราควรเพิ่มการตรวจสอบชนิดข้อมูลก่อนคำนวณ เพื่อให้แน่ใจว่าแต่ละคะแนนเป็นตัวเลขจริง ๆ (int หรือ float)
+ค่าเฉลี่ย: 82.33
+เกรดรวม: A
